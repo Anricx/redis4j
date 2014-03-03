@@ -2,6 +2,23 @@ redis4j
 ===================================  
 Anther minimalist redis client implementation.
 
+<h3>Features</h3>
+COMMAND implemented:
+<pre>
+AUTH,	// Request for authentication in a password-protected Redis server.
+SELECT,	// Select the DB with having the specified zero-based numeric index.
+SET,	// Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
+GET,	// Get the value of key. If the key does not exist the special value nil is returned.
+APPEND,	// If key already exists and is a string, this command appends the value at the end of the string.
+DEL,	// Removes the specified keys. A key is ignored if it does not exist.
+EXPIRE, // Set a timeout on key. After the timeout has expired, the key will automatically be deleted.
+EXISTS,	// Check if key exists.
+FLUSHDB,// Delete all the keys of the currently selected DB. This command never fails.
+ECHO,	// Returns message.
+PING,	// This command is often used to test if a connection is still alive, or to measure latency.
+QUIT	// Ask the server to close the connection.
+</pre>
+
 <h3>Simple Benchmark</h3>
 <pre>
 ......
