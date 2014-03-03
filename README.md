@@ -21,6 +21,11 @@ QUIT	// Ask the server to close the connection.
 
 <h3>Simple Benchmark</h3>
 <pre>
+10000 set requests.
+single thread task runner.
+more in https://github.com/Mailerm/redis4j/blob/master/com.gmail.dengtao.joe.redis4j/test/com/gmail/dengtao/joe/redis4j/RedisTest.java
+</pre>
+<pre>
 ......
 SET OiiOXPCHASDaULgE5pIjxWZj4wNvG2fY1RDR=>m2SKZid2uAqi in 321477 ns
 SET YpPCXIP2TmM8utxNQX4Kh4l4ejRaEdE1uAxR=>LtMQy29kcHYs in 320270 ns
