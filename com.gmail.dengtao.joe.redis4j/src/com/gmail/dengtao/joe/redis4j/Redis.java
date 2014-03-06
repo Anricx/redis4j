@@ -41,6 +41,10 @@ import com.gmail.dengtao.joe.transport.session.Session;
  * {@link #ping()} to test if a connection is still alive, or to measure latency.
  * {@link #close()} to close redis connection.
  * </pre>
+ * <b>To custom deep socket</b>
+ * <pre>
+ * All in {@link #getConnector()}.
+ * </pre>
  * @author <a href="mailto:joe.dengtao@gmail.com">DengTao</a>
  * @version 1.0
  */
@@ -73,9 +77,8 @@ public class Redis implements Closeable {
 	 * @param host	redis host
 	 * @param port  redis port
 	 * @param password redis password
-	 * @throws RedisConnectionException
 	 */
-	public Redis(String host, int port, String password) throws RedisConnectionException {
+	public Redis(String host, int port, String password) {
 		if (host == null || password == null || port < 1 || port > 65535) throw new IllegalArgumentException();
 		this.host = host; this.port = port; this.password = password;
 		this.connect(this.host, this.port, this.password);
@@ -86,9 +89,8 @@ public class Redis implements Closeable {
 	 * @param host
 	 * @param port
 	 * @param password
-	 * @throws RedisConnectionException
 	 */
-    private void connect(String host, int port, String password) throws RedisConnectionException {
+    private void connect(String host, int port, String password) {
     	// Close current
     	if (connection != null) {
 			try { this.close(); } catch (Exception cause) { /* nothing */ }
@@ -482,7 +484,15 @@ public class Redis implements Closeable {
 		}
 	}
 
-    /**
+	/**
+	 * Get current socket connector
+	 * @return SocketConnector
+	 */
+    public SocketConnector getConnector() {
+		return connector;
+	}
+
+	/**
      * Set charset for current redis connection.
      * @param charset charset name eg:UTF-8, ISO-8859-1
      */
@@ -550,7 +560,7 @@ public class Redis implements Closeable {
 		if (timeout < 0) throw new IllegalArgumentException(">=0 required!");
 		this.timeout = timeout;
 	}
-
+	
 	/*
 	 * Redis connection thread, auto reconnect. 
 	 * @author <a href="mailto:joe.dengtao@gmail.com">DengTao</a>
@@ -714,7 +724,7 @@ public class Redis implements Closeable {
 			synchronized (request) {
 				session.send(request);
 				try { request.wait(timeout); } catch (Exception cause) { /* nothing */ }
-				return results.get(request);
+				return results.remove(request);
 			}
 		}
 		

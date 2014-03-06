@@ -32,11 +32,7 @@ public class RedisTest {
 	private static Redis redis;
 	
 	static {
-		try {
-			redis = new Redis("192.168.16.231", 6379, "llt660");
-		} catch (RedisConnectionException e) {
-			e.printStackTrace();
-		};
+		redis = new Redis("192.168.16.231", 6379, "llt660");;
 	}
 	
     private static final LinkedBlockingQueue<Long> setRunTimes = new LinkedBlockingQueue<Long>();
