@@ -21,6 +21,11 @@ public class Protocol {
 	public static final String CRLF = "\r\n";
     public static final String DEFAULT_CHARSET = "UTF-8";
 
+    public static final byte BTS_SPECIFIER_STRING = (byte) SPECIFIER_STRING;
+    public static final byte BTS_SPECIFIER_ERROR = (byte) SPECIFIER_ERROR;
+    public static final byte BTS_SPECIFIER_INTEGER = (byte) SPECIFIER_INTEGER;
+    public static final byte BTS_SPECIFIER_BULK = (byte) SPECIFIER_BULK;
+    public static final byte BTS_SPECIFIER_ARRAY = (byte) SPECIFIER_ARRAY;
     public static final byte[] BTS_CRLF = StringUtils.getBytes(CRLF, DEFAULT_CHARSET);
     
 	public enum Command {

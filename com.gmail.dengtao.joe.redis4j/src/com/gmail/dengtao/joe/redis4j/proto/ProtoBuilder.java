@@ -1,5 +1,7 @@
 package com.gmail.dengtao.joe.redis4j.proto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,6 +121,22 @@ public class ProtoBuilder {
 	
 	/**
 	 * <p>
+	 * Integer Arrays
+	 * </p>
+	 * @param args
+	 * @return this
+	 */
+	public ProtoBuilder array(Integer... args) {
+		type = Protocol.Type.ARRAY;
+		this.args.clear();
+		for (Object arg : args) {
+			this.args.add(arg);
+		}
+		return this;
+	}
+	
+	/**
+	 * <p>
 	 * long Arrays
 	 * </p>
 	 * @param args
@@ -135,12 +153,28 @@ public class ProtoBuilder {
 	
 	/**
 	 * <p>
+	 * Long Arrays
+	 * </p>
+	 * @param args
+	 * @return this
+	 */
+	public ProtoBuilder array(Long... args) {
+		type = Protocol.Type.ARRAY;
+		this.args.clear();
+		for (Object arg : args) {
+			this.args.add(arg);
+		}
+		return this;
+	}
+	
+	/**
+	 * <p>
 	 * String Arrays
 	 * </p>
 	 * @param args
 	 * @return this
 	 */
-	public ProtoBuilder array(String[] args) {
+	public ProtoBuilder array(String... args) {
 		type = Protocol.Type.ARRAY;
 		this.args.clear();
 		for (Object arg : args) {
@@ -167,63 +201,95 @@ public class ProtoBuilder {
 	
 	/**
 	 * <p>
-	 * Build current protocol to string
+	 * Build current protocol to bytes
 	 * </p>
 	 * @return RESP
 	 */
-	public String build() {
-		StringBuffer sb = new StringBuffer();
-		switch (type) {
-			case Protocol.Type.STRING:
-				sb.append(Protocol.SPECIFIER_STRING).append(args.get(0)).append(Protocol.CRLF);
-				break;
-			case Protocol.Type.ERROR:
-				sb.append(Protocol.SPECIFIER_ERROR).append(args.get(0)).append(Protocol.CRLF);
-				break;
-			case Protocol.Type.INTEGER:
-				sb.append(Protocol.SPECIFIER_INTEGER).append(args.get(0)).append(Protocol.CRLF);
-				break;
-			case Protocol.Type.BULK_STRING:
-				if (args.get(0) == null) {
-					sb.append(Protocol.SPECIFIER_BULK).append(-1).append(Protocol.CRLF);
-				} else {
-					String value = (String) args.get(0);
-					byte[] bts = StringUtils.getBytes(value, charset);
-					sb.append(Protocol.SPECIFIER_BULK).append(bts).append(Protocol.CRLF).append(value).append(Protocol.CRLF);
-				}
-				break;
-			case Protocol.Type.ARRAY:
-				sb.append(Protocol.SPECIFIER_ARRAY).append(args.size()).append(Protocol.CRLF);
-				for (Object arg : args) {
-					if (arg == null) {
-						sb.append(Protocol.SPECIFIER_BULK).append(-1).append(Protocol.CRLF);
-					} else if (arg instanceof String) {
-						sb.append(Protocol.SPECIFIER_BULK).append(StringUtils.getBytes((String) arg, charset).length).append(Protocol.CRLF).append(arg).append(Protocol.CRLF);
-					} else if (arg instanceof Integer) {
-						sb.append(Protocol.SPECIFIER_INTEGER).append(arg).append(Protocol.CRLF);
-					} else if (arg instanceof Long) {
-						sb.append(Protocol.SPECIFIER_INTEGER).append(arg).append(Protocol.CRLF);
-					} else if (arg instanceof int[]) {
-						sb.append(new ProtoBuilder().array((int[])arg).build());
-					} else if (arg instanceof long[]) {
-						sb.append(new ProtoBuilder().array((long[])arg).build());
-					} else if (arg instanceof String[]) {
-						sb.append(new ProtoBuilder().array((String[])arg).build());
-					} else if (arg instanceof ProtoBuilder) {
-						sb.append(((ProtoBuilder)arg).build());
-					} else if (arg instanceof Enum) {
-						String value = arg.toString();
-						sb.append(Protocol.SPECIFIER_BULK).append(value.length()).append(Protocol.CRLF)
-						.append(value).append(Protocol.CRLF);
+	public byte[] build() {
+		ByteArrayOutputStream bao = new ByteArrayOutputStream();
+		try {
+			switch (type) {
+				case Protocol.Type.STRING:
+					bao.write(Protocol.BTS_SPECIFIER_STRING);
+					bao.write(StringUtils.getBytes(String.valueOf(args.get(0)), charset));
+					bao.write(Protocol.BTS_CRLF);
+					break;
+				case Protocol.Type.ERROR:
+					bao.write(Protocol.BTS_SPECIFIER_ERROR);
+					bao.write(StringUtils.getBytes(String.valueOf(args.get(0)), charset));
+					bao.write(Protocol.BTS_CRLF);
+					break;
+				case Protocol.Type.INTEGER:
+					bao.write(Protocol.BTS_SPECIFIER_INTEGER);
+					bao.write(StringUtils.getBytes(String.valueOf(args.get(0)), charset));
+					bao.write(Protocol.BTS_CRLF);
+					break;
+				case Protocol.Type.BULK_STRING:
+					if (args.get(0) == null) {
+						bao.write(Protocol.BTS_SPECIFIER_BULK);
+						bao.write(StringUtils.getBytes(String.valueOf(-1), charset));
+						bao.write(Protocol.BTS_CRLF);
 					} else {
-						throw new RuntimeException("arg:" + arg.getClass() + " not support!");
+						byte[] bts = StringUtils.getBytes((String) args.get(0), charset);
+						bao.write(Protocol.BTS_SPECIFIER_BULK);
+						bao.write(StringUtils.getBytes(String.valueOf(bts.length), charset));
+						bao.write(Protocol.BTS_CRLF);
+						bao.write(bts);
+						bao.write(Protocol.BTS_CRLF);
 					}
-				}
-				break;
-			default:
-				throw new RuntimeException("Unkown build type:" + type);
+					break;
+				case Protocol.Type.ARRAY:
+					bao.write(Protocol.BTS_SPECIFIER_ARRAY);
+					bao.write(StringUtils.getBytes(String.valueOf(args.size()), charset));
+					bao.write(Protocol.BTS_CRLF);
+					for (Object arg : args) {
+						if (arg == null) {
+							bao.write(Protocol.BTS_SPECIFIER_BULK);
+							bao.write(StringUtils.getBytes(String.valueOf(-1), charset));
+							bao.write(Protocol.BTS_CRLF);
+						} else if (arg instanceof String) {
+							String value = (String) arg;
+							byte[] bts = StringUtils.getBytes(value, charset);
+							bao.write(Protocol.BTS_SPECIFIER_BULK);
+							bao.write(StringUtils.getBytes(String.valueOf(bts.length), charset));
+							bao.write(Protocol.BTS_CRLF);
+							bao.write(bts);
+							bao.write(Protocol.BTS_CRLF);
+						} else if (arg instanceof Integer || arg instanceof Long) {
+							bao.write(Protocol.BTS_SPECIFIER_INTEGER);
+							bao.write(StringUtils.getBytes(String.valueOf(arg), charset));
+							bao.write(Protocol.BTS_CRLF);
+						} else if (arg instanceof int[]) {
+							bao.write(new ProtoBuilder().setCharset(charset).array((int[])arg).build());
+						} else if (arg instanceof long[]) {
+							bao.write(new ProtoBuilder().setCharset(charset).array((long[])arg).build());
+						} else if (arg instanceof Integer[]) {
+							bao.write(new ProtoBuilder().setCharset(charset).array((Integer[])arg).build());
+						} else if (arg instanceof Long[]) {
+							bao.write(new ProtoBuilder().setCharset(charset).array((Long[])arg).build());
+						} else if (arg instanceof String[]) {
+							bao.write(new ProtoBuilder().setCharset(charset).array((String[])arg).build());
+						} else if (arg instanceof ProtoBuilder) {
+							bao.write(((ProtoBuilder)arg).build());
+						} else if (arg instanceof Enum) {
+							byte[] bts = StringUtils.getBytes(arg.toString(), charset);
+							bao.write(Protocol.BTS_SPECIFIER_BULK);
+							bao.write(StringUtils.getBytes(String.valueOf(bts.length), charset));
+							bao.write(Protocol.BTS_CRLF);
+							bao.write(bts);
+							bao.write(Protocol.BTS_CRLF);
+						} else {
+							throw new RuntimeException("arg:" + arg.getClass() + " not support!");
+						}
+					}
+					break;
+				default:
+					throw new RuntimeException("Unkown build type:" + type);
+			}
+			return bao.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException("Unkown build type:" + e.getMessage(), e);
 		}
-		return sb.toString();
 	}
 	
 }

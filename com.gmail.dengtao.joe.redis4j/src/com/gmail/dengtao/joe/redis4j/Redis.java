@@ -597,13 +597,13 @@ public class Redis implements Closeable {
 				}
 				if (active) {
 					if (LOGGER.isDebugEnabled()) {
-						LOGGER.info("[Redis][Connect][server gone away! reconnect in " + reconnect + " ms]");
+						LOGGER.debug("[Redis][Connect][server gone away! reconnect in " + reconnect + " ms]");
 					}
 					try { Thread.sleep(reconnect); } catch (Exception cause) { /* nothing */ }
 				}
 			}
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.info("[Redis][Connect][shutdown...]");
+				LOGGER.debug("[Redis][Connect][shutdown...]");
 			}
 		}
     	
@@ -622,7 +622,7 @@ public class Redis implements Closeable {
 		@Override
 		public void sessionOpened(Session session) throws Exception {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.info("[Redis][Connect][connection established.]");
+				LOGGER.debug("[Redis][Connect][connection established.]");
 			}
 			this.session = session;
 			if (password == null) {
@@ -646,7 +646,7 @@ public class Redis implements Closeable {
 		@Override
 		public void dataReceived(Session session, Object data) throws Exception {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.info("[Redis][Receive][" + data + "]");
+				LOGGER.debug("[Redis][Receive][" + data + "]");
 			}
 			Object request = queue.poll();
 			RedisResult result = null;
@@ -664,7 +664,7 @@ public class Redis implements Closeable {
 		@Override
 		public void dataSent(Session session, Object data) throws Exception {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.info("[Redis][Sent][" + data + "]");
+				LOGGER.debug("[Redis][Sent][" + new String((byte[]) data) + "]");
 			}
 			queue.offer(data);
 		}
@@ -672,7 +672,7 @@ public class Redis implements Closeable {
 		@Override
 		public void dataNotSent(Session session, Object data) throws Exception {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.warn("[Redis][NotSent][" + data + "]");
+				LOGGER.warn("[Redis][NotSent][" + new String((byte[]) data) + "]");
 			}
 			RedisResult result = new RedisResult(new RedisIOException("request not sent:" + data));
 			results.put(data, result);
@@ -701,7 +701,7 @@ public class Redis implements Closeable {
 		public void sessionClosed(Session session) throws Exception {
 			this.session = null;
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.info("[Redis][Connect][session closed...]");
+				LOGGER.debug("[Redis][Connect][session closed...]");
 			}
 			// Notify All Exception
 			for (Object request : queue) {
@@ -717,7 +717,7 @@ public class Redis implements Closeable {
 			this.results.clear();
 		}
 		
-		private RedisResult request(String request, long timeout) throws RedisConnectionException {
+		private RedisResult request(byte[] request, long timeout) throws RedisConnectionException {
 			if (session == null) {
 				throw new RedisConnectionException("server not connect yet!");
 			}
@@ -746,7 +746,7 @@ public class Redis implements Closeable {
 
 			@Override
 			public void run() {
-				String request = new ProtoBuilder().setCharset(charset).array(Protocol.Command.AUTH, password).build();
+				byte[] request = new ProtoBuilder().setCharset(charset).array(Protocol.Command.AUTH, password).build();
 				try {
 					RedisResult result = request(request, timeout);
 					if (result == null) {
