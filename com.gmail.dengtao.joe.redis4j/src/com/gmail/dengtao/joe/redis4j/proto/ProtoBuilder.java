@@ -184,11 +184,12 @@ public class ProtoBuilder {
 				sb.append(Protocol.SPECIFIER_INTEGER).append(args.get(0)).append(Protocol.CRLF);
 				break;
 			case Protocol.Type.BULK_STRING:
-				String value = (String) args.get(0);
-				if (value == null) {
+				if (args.get(0) == null) {
 					sb.append(Protocol.SPECIFIER_BULK).append(-1).append(Protocol.CRLF);
 				} else {
-					sb.append(Protocol.SPECIFIER_BULK).append(StringUtils.getBytes(value, charset).length).append(Protocol.CRLF).append(value).append(Protocol.CRLF);
+					String value = (String) args.get(0);
+					byte[] bts = StringUtils.getBytes(value, charset);
+					sb.append(Protocol.SPECIFIER_BULK).append(bts).append(Protocol.CRLF).append(value).append(Protocol.CRLF);
 				}
 				break;
 			case Protocol.Type.ARRAY:
@@ -211,7 +212,7 @@ public class ProtoBuilder {
 					} else if (arg instanceof ProtoBuilder) {
 						sb.append(((ProtoBuilder)arg).build());
 					} else if (arg instanceof Enum) {
-						value = arg.toString();
+						String value = arg.toString();
 						sb.append(Protocol.SPECIFIER_BULK).append(value.length()).append(Protocol.CRLF)
 						.append(value).append(Protocol.CRLF);
 					} else {
