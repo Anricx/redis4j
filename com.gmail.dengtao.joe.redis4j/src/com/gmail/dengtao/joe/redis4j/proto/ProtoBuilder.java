@@ -2,6 +2,7 @@ package com.gmail.dengtao.joe.redis4j.proto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +13,10 @@ import com.gmail.dengtao.joe.redis4j.utils.StringUtils;
  * @author <a href="mailto:joe.dengtao@gmail.com">DengTao</a>
  * @version 1.0
  */
-public class ProtoBuilder {
+public class ProtoBuilder implements Serializable {
 	
+	private static final long serialVersionUID = 2949760511387915363L;
+
 	private int type = 0;	// protocol data type
 	private String charset = Protocol.DEFAULT_CHARSET; // charset
 	private List<Object> args = new ArrayList<Object>(); // args
