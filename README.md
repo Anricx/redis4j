@@ -25,7 +25,7 @@ QUIT	// Ask the server to close the connection.
 <pre>
 10000 set requests.
 single thread task runner.
-more in https://github.com/Mailerm/redis4j/blob/master/com.gmail.dengtao.joe.redis4j/test/com/gmail/dengtao/joe/redis4j/RedisTest.java
+more in https://github.com/Mailerm/redis4j/blob/master/com.gmail.dengtao.joe.redis4j/test/com/gmail/dengtao/joe/redis4j/Benchmark.java
 </pre>
 <pre>
 ......
