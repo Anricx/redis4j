@@ -1,6 +1,6 @@
 redis4j
 ===================================  
-Anther minimalist redis client implementation.
+Another minimalist redis client implementation.
 
 <h3>Features</h3>
 COMMAND implemented:
